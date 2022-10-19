@@ -74,7 +74,7 @@ export class UsersService {
       }
 
     } catch (error) {
-      if (error.response == 'Not Found') {
+      if (error.response == 'User Not Found') {
         throw new HttpException('User Not Found', HttpStatus.NOT_FOUND)
       } else if (error.response == 'Email Required') {
         throw new HttpException('Email Required', HttpStatus.NOT_FOUND)
