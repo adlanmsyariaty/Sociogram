@@ -1,45 +1,38 @@
-import { Controller, Post, Body, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Get, Body, HttpException, HttpStatus, Request, UseGuards } from '@nestjs/common';
+import { AuthGuard } from 'src/auth/auth.guard';
 import { PostsService } from './posts.service';
 
 @Controller('posts')
 export class PostController {
-  constructor(private readonly postssService: PostsService) {}
+  constructor(private readonly postsService: PostsService) {}
 
-  // @Post('signup')
-  // async register(
-  //   @Body('name') name: string,
-  //   @Body('username') username: string,
-  //   @Body('email') email: string,
-  //   @Body('password') password: string,
-  // ) {
-  //   const res = await this.usersService.signUp(
-  //     name,
-  //     username,
-  //     email,
-  //     password
-  //   )
+  @Get()
+  async viewPost() {
+    const res = await this.postsService.getPost()
 
-  //   throw new HttpException({
-  //     statusCode: HttpStatus.CREATED,
-  //     data: res.result
-  //   }, HttpStatus.CREATED)
-  // }
+    throw new HttpException({
+      statusCode: HttpStatus.OK,
+      data: res
+    }, HttpStatus.OK)
+  }
 
-  // @Post('login')
-  // async login(
-  //   @Body('email') email: string,
-  //   @Body('password') password: string,
-  // ) {
-  //   const res = await this.usersService.login(
-  //     email,
-  //     password
-  //   )
+  @UseGuards(AuthGuard)
+  @Post('add')
+  async createPost(
+    @Body('imageUrl') imageUrl: string,
+    @Body('caption') caption: string,
+    @Request() req
+  ) {
+    const userId = req.user.id
+    const res = await this.postsService.addPost(
+      userId,
+      imageUrl,
+      caption,
+    )
 
-  //   throw new HttpException({
-  //     statusCode: HttpStatus.OK,
-  //     data: {
-  //       access_token: res.access_token
-  //     }
-  //   }, HttpStatus.OK)
-  // }
+    throw new HttpException({
+      statusCode: HttpStatus.CREATED,
+      data: res.result
+    }, HttpStatus.CREATED)
+  }
 }
