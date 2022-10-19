@@ -3,12 +3,13 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User } from './user.model';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UsersService {
   private users: User[] = [];
 
-  constructor(@InjectModel('User') private readonly userModel: Model<User>) {}
+  constructor(@InjectModel('User') private readonly userModel: Model<User>, private jwtService: JwtService) {}
 
   async signUp(
     name: string,
@@ -22,12 +23,11 @@ export class UsersService {
         throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST)
       }
 
-      const hashedPassword = await bcrypt.hash(password, 10);
       const newUser = new this.userModel({
         name,
         email,
         username,
-        password: hashedPassword,
+        password,
       });
 
       const data = await newUser.save();
@@ -38,8 +38,7 @@ export class UsersService {
       }
 
       return {
-        status: 201,
-        data: result
+        result
       };
     } catch (error) {
       if (error.response == 'Bad Request') {
@@ -64,22 +63,37 @@ export class UsersService {
     password: string,
   ) {
     try {
-      if (!email) throw new HttpException('Email Required', HttpStatus.BAD_REQUEST)
-      if (!password) throw new HttpException('Password Required', HttpStatus.BAD_REQUEST)
+      if (!email) throw new HttpException('Email is required', HttpStatus.BAD_REQUEST)
+      if (!password) throw new HttpException('Password is required', HttpStatus.BAD_REQUEST)
 
       const user = await this.userModel.findOne({ email: email })
-      const isPasswordValid = await bcrypt.compare(password, user.password)
-      if (!isPasswordValid) {
-        throw new HttpException('User Not Found', HttpStatus.NOT_FOUND)
+      if (!user) {
+        throw new HttpException('User Not Found', HttpStatus.BAD_REQUEST)
       }
 
+      const isPasswordValid = await bcrypt.compare(password, user.password)
+      if (!isPasswordValid) {
+        throw new HttpException('Invalid', HttpStatus.NOT_FOUND)
+      }
+
+      const payload = {
+        id: user._id,
+        email: user.email
+      }
+
+      const access_token = this.jwtService.sign(payload)
+      return {
+        access_token
+      };
     } catch (error) {
       if (error.response == 'User Not Found') {
         throw new HttpException('User Not Found', HttpStatus.NOT_FOUND)
-      } else if (error.response == 'Email Required') {
-        throw new HttpException('Email Required', HttpStatus.NOT_FOUND)
-      } else if (error.response == 'Password Required') {
-        throw new HttpException('Password Required', HttpStatus.NOT_FOUND)
+      } else if (error.response == 'Email is required') {
+        throw new HttpException('Email is required', HttpStatus.BAD_REQUEST)
+      } else if (error.response == 'Invalid') {
+        throw new HttpException('Invalid email or password', HttpStatus.NOT_FOUND)
+      } else if (error.response == 'Password is required') {
+        throw new HttpException('Password is required', HttpStatus.BAD_REQUEST)
       } else {
         throw new HttpException('Internal Server Error', HttpStatus.INTERNAL_SERVER_ERROR)
       }

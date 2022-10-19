@@ -3,6 +3,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UsersService } from './users.service';
 import { UserSchema } from './user.model';
 import { UserController } from './users.controller';
+import { JwtModule } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
 
 export type User = {
   name: string;
@@ -13,10 +15,20 @@ export type User = {
 
 @Module({
   imports: [
-    MongooseModule.forFeature([
+    JwtModule.register({
+      secret: process.env.SECRET_KEY,
+      signOptions: { expiresIn: '2h' },
+    }),
+    MongooseModule.forFeatureAsync([
       {
         name: 'User',
-        schema: UserSchema
+        useFactory: () => {
+          const schema = UserSchema;
+          schema.pre('save', function () {
+            this.password = bcrypt.hashSync(this.password, 10);
+          });
+          return schema;
+        }
       },
     ]),
   ],
