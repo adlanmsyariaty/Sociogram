@@ -15,9 +15,6 @@ export class PostsService {
     caption: string,
   ) {
     try {
-      if (!imageUrl) throw new HttpException('Image is required', HttpStatus.BAD_REQUEST)
-      if (!caption) throw new HttpException('Caption is required', HttpStatus.BAD_REQUEST)
-
       const newPost = new this.postModel({
         userId,
         imageUrl,
@@ -47,7 +44,7 @@ export class PostsService {
 
   async getPost() {
     try {
-      const posts = await this.postModel.find()
+      const posts = await this.postModel.find().populate('comments')
 
       return posts
     } catch (error) {

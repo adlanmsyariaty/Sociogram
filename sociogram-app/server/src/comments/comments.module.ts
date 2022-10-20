@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { PostsService } from './posts.service';
-import { PostSchema } from './post.model';
-import { PostController } from './posts.controller';
+import { CommentsService } from './comments.service';
+import { CommentSchema } from './comment.model';
+import { CommentController } from './comments.controller';
 import { JwtModule } from '@nestjs/jwt';
-import { UsersModule } from 'src/users/users.module';
+import { PostSchema } from 'src/posts/post.model';
 import { UserSchema } from 'src/users/user.model';
 
 export type Post = {
@@ -23,12 +23,16 @@ export type Post = {
         name: 'Post',
         schema: PostSchema
       },
+      {
+        name: 'Comment',
+        schema: CommentSchema
+      },
     ]),
     JwtModule.register({
       secret: 'secretKeyForUser2022',
     })
   ],
-  controllers: [PostController],
-  providers: [PostsService],
+  controllers: [CommentController],
+  providers: [CommentsService],
 })
-export class PostsModule {}
+export class CommentsModule {}
