@@ -1,4 +1,5 @@
-import { Controller, Post, Get, Body, HttpException, HttpStatus, Request, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Body, HttpException, HttpStatus, Request, UseGuards, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { PostsService } from './posts.service';
 
@@ -33,6 +34,18 @@ export class PostController {
     throw new HttpException({
       statusCode: HttpStatus.CREATED,
       data: res.result
+    }, HttpStatus.CREATED)
+  }
+
+  @Post('imageUpload')
+  @UseInterceptors(FileInterceptor('image'))
+  async imageUpload(
+    @UploadedFile() imageFile,
+  ) {
+    const res = await this.postsService.upload(imageFile)
+    throw new HttpException({
+      statusCode: HttpStatus.CREATED,
+      data: res
     }, HttpStatus.CREATED)
   }
 }
