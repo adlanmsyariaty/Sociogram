@@ -37,6 +37,7 @@ export class PostController {
     }, HttpStatus.CREATED)
   }
 
+  @UseGuards(AuthGuard)
   @Post('imageUpload')
   @UseInterceptors(FileInterceptor('image'))
   async imageUpload(
