@@ -1,0 +1,3 @@
+[submodule "sociogram-app/client/sociogram"]
+	path = sociogram-app/client/sociogram
+	url = https://github.com/adlanmsyariaty/Sociogram.git
