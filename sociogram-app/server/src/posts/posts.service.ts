@@ -48,7 +48,7 @@ export class PostsService {
 
   async getPost() {
     try {
-      const posts = await this.postModel.find().populate('comments')
+      const posts = await this.postModel.find().populate('comments').populate('userId').sort({'createdAt': -1})
 
       return posts
     } catch (error) {
