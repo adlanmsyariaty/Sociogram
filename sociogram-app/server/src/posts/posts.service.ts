@@ -53,10 +53,11 @@ export class PostsService {
           path: 'comments',
           populate: {
             path: 'userId',
-            select: 'name username'
+            model: 'User',
+            select: '_id name username'
           }
         })
-        .populate('userId').sort({'createdAt': -1})
+        .populate('userId', '_id name username').sort({'createdAt': -1})
 
       return posts
     } catch (error) {
