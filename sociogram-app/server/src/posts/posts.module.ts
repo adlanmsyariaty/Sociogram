@@ -25,7 +25,7 @@ export type Post = {
       },
     ]),
     JwtModule.register({
-      secret: 'secretKeyForUser2022',
+      secret: process.env.JWT_KEY,
     })
   ],
   controllers: [PostController],

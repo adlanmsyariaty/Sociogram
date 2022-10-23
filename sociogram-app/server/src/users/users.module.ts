@@ -16,8 +16,7 @@ export type User = {
 @Module({
   imports: [
     JwtModule.register({
-      secret: 'secretKeyForUser2022',
-      signOptions: { expiresIn: '24h' }
+      secret: process.env.JWT_KEY,
     }),
     MongooseModule.forFeatureAsync([
       {
