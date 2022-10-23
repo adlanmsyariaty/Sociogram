@@ -26,7 +26,9 @@ export class AuthGuard implements CanActivate {
     .then((res: any) => {
       if (res) {
         req.user = {
-          id: res._id
+          id: res._id,
+          name: res.name,
+          username: res.username,
         }
         return true
       } else {

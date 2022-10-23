@@ -14,15 +14,17 @@ export class CommentController {
     @Request() req
   ) {
     const userId = req.user.id
+    const username = req.user.username
     const res = await this.commentsService.addComment(
       userId,
       postId,
       message,
+      username
     )
 
     throw new HttpException({
       statusCode: HttpStatus.CREATED,
-      data: res.result
+      data: res.result,
     }, HttpStatus.CREATED)
   }
 }

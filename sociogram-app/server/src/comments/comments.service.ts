@@ -18,6 +18,7 @@ export class CommentsService {
     userId: string,
     postId: string,
     message: string,
+    username: string,
   ) {
     try {
       const newComment = new this.commentModel({
@@ -35,8 +36,16 @@ export class CommentsService {
         { $push: { comments: addedComment._id } }
       )
 
+      let result: any = {
+        ...addedComment,
+      }
+      result.userId = {
+        _id: String(result.userId),
+        username: username
+      }
+
       return {
-        result: addedComment
+        result: result
       };
     } catch (error) {
       if (error.response == 'Post not found') {
